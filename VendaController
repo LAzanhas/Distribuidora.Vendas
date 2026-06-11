@@ -1,0 +1,68 @@
+package controller;
+import model.Bebida;
+import model.Cliente;
+import model.ItemVenda;
+import model.Venda;
+import service.IDistribuidora;
+
+public class VendaController{
+    private Venda vendaAtual;
+    private IDistribuidora distribuidora;
+    private int proximaVenda = 1;
+
+    public VendaController(IDistribuidora distribuidora){
+        this.distribuidora=distribuidora;
+        this.vendaAtual=null;
+    }
+
+    public String iniciarNovaVenda(String nome, String cpf){
+        if (vendaAtual!=null){
+            return "compra ainda em andamento";
+        }
+        Cliente clienteEncontrado = distribuidora.buscarClientePorCpf(cpf);
+        if (clienteEncontrado==null){
+            return "cliente não encontrado";
+        }
+
+        clienteEncontrado.setNome(nome); 
+        this.vendaAtual = new Venda(this.proximaVenda, clienteEncontrado);
+        this.proximaVenda++;
+        return "Sucesso: compra n° " + vendaAtual.getCodigoVenda() + " iniciada para o cliente " + clienteEncontrado.getNome();
+    }
+    public String finalizarVenda() {
+        if (vendaAtual == null) {
+            return "Não há nenhuma compra em andamento para finalizar.";
+        }
+        if (vendaAtual.getItens().isEmpty()) {
+            return "Não é possível comprar sem os produtos!";
+        }
+
+        for (ItemVenda item : vendaAtual.getItens()) {
+            String codigoBebida = item.getBebidaItem().getCodigo();
+            int qtdVendida = item.getQuantidade();
+
+            distribuidora.retirarEstoque(codigoBebida, qtdVendida);
+        }
+        double total = vendaAtual.calculoTotalVenda();
+        vendaAtual.setFinalizada(true);
+        this.vendaAtual = null;
+        return "Venda finalizada com sucesso! Total: R$ " + total;
+    }
+
+
+
+    public String addItemVenda(String codigoBebida, int quantidade){
+        if (vendaAtual==null){
+            return "Não a compra aberta, começe a comprar e gaste seu dinheiro";
+        }
+        Bebida bebidaEncontrada = distribuidora.buscarBebidaPorCodigo(codigoBebida);
+        if(bebidaEncontrada==null){
+            return "Bebida com o codigo" + codigoBebida + "não foi encontrada no sistema";
+        }
+
+        double precoUnt = bebidaEncontrada.getPreco();
+        ItemVenda novoItem = new ItemVenda(bebidaEncontrada, quantidade, precoUnt);
+        this.vendaAtual.getItens().add(novoItem);
+        return "Sucesso: " + quantidade + " + " + codigoBebida + " adicionado(s) à venda!";
+    }
+}
