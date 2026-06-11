@@ -1,0 +1,38 @@
+package model;
+
+public class ItemVenda {
+    private Bebida bebidaItem;
+    private int quantidade;
+    private double precoUnt;
+
+    public ItemVenda(Bebida bebidaItem,int quantidade, double precoUnt){
+        this.bebidaItem = bebidaItem;
+        this.precoUnt = precoUnt;
+        this.quantidade = quantidade;
+    }
+    public void setBebidaItem(Bebida bebidaItem) {
+        this.bebidaItem = bebidaItem;
+    }
+    public void setPrecoUnt(double precoUnt) {
+        this.precoUnt = precoUnt;
+    }
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public double getPrecoUnt() {
+        return precoUnt;
+    }
+    public int getQuantidade() {return quantidade;}
+    public Bebida getBebidaItem() {
+        return bebidaItem;
+    }
+
+    public double calculoSubTotal(){
+        double somaS=0;
+        somaS=getQuantidade()*getPrecoUnt();
+        return somaS;
+    }
+
+
+}
